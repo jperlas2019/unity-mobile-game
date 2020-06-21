@@ -30,15 +30,15 @@ public class Enemy : MonoBehaviour {
 		// }
 	}
 
-	public void Damage(int input_damage)
+	public void Damage(int input_damage, bool crit)
 	{
 		gold.GetComponent<Score>().increase_gold();
 		health -= input_damage;
-		show_floating_text(input_damage);
+		show_floating_text(input_damage, crit);
 		
 	}
 
-    void show_floating_text(int input_damage)
+    void show_floating_text(int input_damage, bool crit)
     {
 		// transform.position = new Vector3(transform.position.x, 1.5f, transform.position.z);
 		float enemy_position_x = transform.position.x;
@@ -49,6 +49,12 @@ public class Enemy : MonoBehaviour {
 		float enemy_max_y = 1.0f + enemy_position_y;
 
         GameObject go = Instantiate(floating_text, new Vector3(Random.Range(enemy_min_x, enemy_max_x), Random.Range(enemy_min_y, enemy_max_y), transform.position.z - 1), Quaternion.identity);
+		if (crit == true)
+		{
+			go.GetComponent<TextMesh>().color = new Color(255, 255, 0);
+			go.GetComponent<floating_text>().destroy_time = 2;
+			go.GetComponent<TextMesh>().characterSize = 3;
+		}
 		go.GetComponent<TextMesh>().text = input_damage.ToString();
     }
 

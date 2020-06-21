@@ -6,6 +6,7 @@ using UnityEngine;
 public class Strings : MonoBehaviour {
     public AudioClip damage_enemy;
     public AudioClip damage_complete;
+    public AudioClip critical_hit;
     public AudioSource audioSource;
     public GameObject Player_object;
     public GameObject Enemy;
@@ -100,6 +101,10 @@ public class Strings : MonoBehaviour {
                 {
                     move_arrows();
                 }
+                if (gameobject.GetComponent<SpriteRenderer>().color == new Color(255, 0, 0))
+                {
+                    red_key_exists = 0;
+                }
                 object_array_up.RemoveAt(0);
                 string_array_up.RemoveAt(0);
                 Destroy(gameobject);
@@ -150,6 +155,10 @@ public class Strings : MonoBehaviour {
                 {
                     move_arrows();
                 }
+                if (gameobject.GetComponent<SpriteRenderer>().color == new Color(255, 0, 0))
+                {
+                    red_key_exists = 0;
+                }
                 object_array_down.RemoveAt(0);
                 string_array_down.RemoveAt(0);
                 Destroy(gameobject);
@@ -187,6 +196,10 @@ public class Strings : MonoBehaviour {
                 if (Main.GetComponent<Main>().enemy_array.Count > 0)
                 {
                     move_arrows();
+                }
+                if (gameobject.GetComponent<SpriteRenderer>().color == new Color(255, 0, 0))
+                {
+                    red_key_exists = 0;
                 }
                 object_array.RemoveAt(0);
                 string_array.RemoveAt(0);
@@ -339,6 +352,7 @@ public class Strings : MonoBehaviour {
 
     public void apply_enemy_damage(bool deal_complete)
     {
+        bool crit = false;
         int player_LUK = Player_object.GetComponent<Player>().LUK;
         int player_CRIT = Player_object.GetComponent<Player>().CRIT_CHANCE;
         int player_STR = Player_object.GetComponent<Player>().STR;
@@ -350,16 +364,25 @@ public class Strings : MonoBehaviour {
         {
             total_complete_damage *= 2;
             total_damage *= 2;
+            crit = true;
         }
         if (deal_complete == true)
         {
-            audioSource.PlayOneShot(damage_complete);
-            Enemy.GetComponent<Enemy>().Damage(total_complete_damage);
+            if (crit == true){
+                audioSource.PlayOneShot(critical_hit);
+            } else {
+                audioSource.PlayOneShot(damage_complete);
+            }
+            Enemy.GetComponent<Enemy>().Damage(total_complete_damage, crit);
         }
         else
         {
-            audioSource.PlayOneShot(damage_enemy);
-            Enemy.GetComponent<Enemy>().Damage(total_damage);
+            if (crit == true){
+                audioSource.PlayOneShot(critical_hit);
+            } else {
+                audioSource.PlayOneShot(damage_enemy);
+            }
+            Enemy.GetComponent<Enemy>().Damage(total_damage, crit);
         }
     }
 
@@ -387,7 +410,11 @@ public class Strings : MonoBehaviour {
     {
         if (array.Count > 0)
         {
-            array[0].GetComponent<SpriteRenderer>().color = new Color(255, 255, 0);
+            if(array[0].GetComponent<SpriteRenderer>().color == new Color(255, 0, 0)){
+                Debug.Log("that is red");
+            } else {
+                array[0].GetComponent<SpriteRenderer>().color = new Color(255, 255, 0);
+            }
             if ((array2 != null) && (array2.Count > 0)){
                 array2[0].GetComponent<SpriteRenderer>().color = new Color(255, 255, 255);
             }
@@ -450,12 +477,15 @@ public class Strings : MonoBehaviour {
         int which_string = Random.Range(1, 3);
         if(which_string == 0){
             object_array[0].GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
+            red_key_exists = 1;
         }
         if((which_string == 1) && (object_array_up.Count > 0) ){
             object_array_up[Random.Range(0, (object_array_up.Count - 1))].GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
+            red_key_exists = 1;
         }
         if((which_string == 2) && (object_array_down.Count > 0)){
             object_array_down[Random.Range(0, (object_array_down.Count - 1))].GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
+            red_key_exists = 1;
         }
     }
 
@@ -493,6 +523,10 @@ public class Strings : MonoBehaviour {
 
     public void clear_string()
     {
+        if (red_key_exists == 1)
+        {
+            apply_player_damage();
+        }
         foreach (GameObject gameObject in object_array)
         {
             Destroy(gameObject);

@@ -9,9 +9,4 @@ public class floating_text : MonoBehaviour {
 	void Start () {
 		Destroy(gameObject, destroy_time);
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 }
