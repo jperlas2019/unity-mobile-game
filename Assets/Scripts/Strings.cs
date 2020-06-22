@@ -37,40 +37,60 @@ public class Strings : MonoBehaviour {
     List<GameObject> object_array_down = new List<GameObject>();
     List<GameObject> inactive_array = new List<GameObject>();
     public GameObject Main;
+    public bool CLEARING = false;
+    public bool complete_string = false;
+    public Swipe swipeControls;
+
     
-
-    void Start()
-    {
-
-    }
 
     void Update()
     {
+        if (swipeControls.SwipeUp)
+        {
+            Debug.Log("swipeup");
+            check_input("UpArrow");
+        }
+        if (swipeControls.SwipeDown)
+        {
+            Debug.Log("swipedown");
+            check_input("DownArrow");
+        }
+        if (swipeControls.SwipeLeft)
+        {
+            Debug.Log("swipeleft");
+            check_input("LeftArrow");
+        }
+        if (swipeControls.SwipeRight)
+        {
+            Debug.Log("swiperight");
+            check_input("RightArrow");
+        }
         if (Input.GetKeyUp(KeyCode.UpArrow))
         {
             // Debug.Log("Up arrow");
-            check_input(KeyCode.UpArrow);
+            check_input("UpArrow");
         }
         if (Input.GetKeyUp(KeyCode.DownArrow))
         {
             // Debug.Log("Down arrow");
-            check_input(KeyCode.DownArrow);
+            check_input("DownArrow");
         }
         if (Input.GetKeyUp(KeyCode.LeftArrow))
         {
             // Debug.Log("Left arrow");
-            check_input(KeyCode.LeftArrow);
+            check_input("LeftArrow");
         }
         if (Input.GetKeyUp(KeyCode.RightArrow))
         {
             // Debug.Log("Right arrow");
-            check_input(KeyCode.RightArrow);
+            check_input("RightArrow");
         }
     }
 
-    public void check_input(KeyCode arrow_input)
+    public void check_input(string arrow_input)
     {
-        bool CLEARING = false;
+        CLEARING = false;
+        complete_string = false;
         Debug.Log(up_active + "upactive");
         Debug.Log(down_active + "downactive");
         if ((object_array[0].name == "RightArrow") && (up_active == 0))
@@ -368,6 +388,8 @@ public class Strings : MonoBehaviour {
         }
         if (deal_complete == true)
         {
+            Debug.Log(deal_complete);
+            complete_string = true;
             if (crit == true){
                 audioSource.PlayOneShot(critical_hit);
             } else {
@@ -426,6 +448,7 @@ public class Strings : MonoBehaviour {
 
     public void create_string ()
     {
+        // complete_string = false;
         up_passed = false;
         down_passed = false;
         float x = -7;
@@ -474,17 +497,17 @@ public class Strings : MonoBehaviour {
                 }
             }
         }
-        int which_string = Random.Range(1, 3);
+        int which_string = Random.Range(0, 3);
         if(which_string == 0){
-            object_array[0].GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
+            object_array[Random.Range(1, (object_array.Count - 1))].GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
             red_key_exists = 1;
         }
         if((which_string == 1) && (object_array_up.Count > 0) ){
-            object_array_up[Random.Range(0, (object_array_up.Count - 1))].GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
+            object_array_up[Random.Range(1, (object_array_up.Count - 1))].GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
             red_key_exists = 1;
         }
         if((which_string == 2) && (object_array_down.Count > 0)){
-            object_array_down[Random.Range(0, (object_array_down.Count - 1))].GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
+            object_array_down[Random.Range(1, (object_array_down.Count - 1))].GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
             red_key_exists = 1;
         }
     }

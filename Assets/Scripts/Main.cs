@@ -23,8 +23,12 @@ public class Main : MonoBehaviour {
 		if (enemy_array.Count < 1)
 		{
 			make_enemy();
-			strings.GetComponent<Strings>().clear_string();
-			strings.GetComponent<Strings>().create_string();
+			Debug.Log(strings.GetComponent<Strings>().complete_string + "debug");
+			if (strings.GetComponent<Strings>().complete_string == false) {
+				strings.GetComponent<Strings>().clear_string();
+				strings.GetComponent<Strings>().create_string();
+			}
+			strings.GetComponent<Strings>().complete_string = false;
 		}
 		
 		if (enemy_array[0].GetComponent<Enemy>().health2 < 1)

@@ -7,6 +7,7 @@ public class Player : MonoBehaviour {
 	
 	public GameObject MainHUD;
 	public AudioClip levelup;
+	public AudioClip player_hurt;
 	public AudioSource audioSource;
 	public GameObject floating_text;
     public static float health = 10.0f;
@@ -61,6 +62,7 @@ public class Player : MonoBehaviour {
 	public void Damage(float input_damage)
 	{
 		health -= input_damage;
+		audioSource.PlayOneShot(player_hurt);
 		show_floating_text(input_damage);
 	}
 
