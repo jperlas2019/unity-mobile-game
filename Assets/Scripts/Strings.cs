@@ -7,6 +7,8 @@ public class Strings : MonoBehaviour {
     public AudioClip damage_enemy;
     public AudioClip damage_complete;
     public AudioClip critical_hit;
+    public AudioClip special_sound;
+    public AudioClip heal_sound;
     public AudioSource audioSource;
     public GameObject Player_object;
     public GameObject Enemy;
@@ -16,6 +18,7 @@ public class Strings : MonoBehaviour {
     public Sprite DownArrowInactive;
     public Sprite LeftArrowInactive;
     public Sprite RightArrowInactive;
+    public GameObject Special;
     bool up_passed;
     bool down_passed;
     Sprite[] inactive_sprites;
@@ -29,6 +32,7 @@ public class Strings : MonoBehaviour {
     int up_active = 0;
     int down_active = 0;
     int red_key_exists = 0;
+    int green_key_exists = 0;
     List<Sprite> string_array = new List<Sprite>();
     List<Sprite> string_array_up = new List<Sprite>();
     List<Sprite> string_array_down = new List<Sprite>();
@@ -41,7 +45,8 @@ public class Strings : MonoBehaviour {
     public bool complete_string = false;
     public Swipe swipeControls;
 
-    
+    public GameObject combo_value_object;
+    public GameObject combo_multi_object;
 
     void Update()
     {
@@ -65,37 +70,65 @@ public class Strings : MonoBehaviour {
             Debug.Log("swiperight");
             check_input("RightArrow");
         }
-        if (Input.GetKeyUp(KeyCode.UpArrow))
+        if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             // Debug.Log("Up arrow");
-            check_input("UpArrow");
+            string returned = check_input("UpArrow");
+            if(returned == "UpArrow")
+            {
+                Player_object.GetComponent<Player>().player_animator.SetTrigger("upatk");
+                // combo_value_object.GetComponent<combo_value>().increase_combo();
+            }
         }
-        if (Input.GetKeyUp(KeyCode.DownArrow))
+        if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             // Debug.Log("Down arrow");
-            check_input("DownArrow");
+            string returned = check_input("DownArrow");
+            if(returned == "DownArrow")
+            {
+                Player_object.GetComponent<Player>().player_animator.SetTrigger("downatk");
+                // combo_value_object.GetComponent<combo_value>().increase_combo();
+            }
         }
-        if (Input.GetKeyUp(KeyCode.LeftArrow))
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             // Debug.Log("Left arrow");
-            check_input("LeftArrow");
+            string returned = check_input("LeftArrow");
+            if(returned == "LeftArrow")
+            {
+                Player_object.GetComponent<Player>().player_animator.SetTrigger("fatk");
+                // combo_value_object.GetComponent<combo_value>().increase_combo();
+            }
         }
-        if (Input.GetKeyUp(KeyCode.RightArrow))
+        if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             // Debug.Log("Right arrow");
-            check_input("RightArrow");
+            string returned = check_input("RightArrow");
+            if(returned == "RightArrow")
+            {
+                Player_object.GetComponent<Player>().player_animator.SetTrigger("fatk");
+                // combo_value_object.GetComponent<combo_value>().increase_combo();
+            }   
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if(Special.GetComponent<Special>().SPECIAL >= 30)
+            {
+                StartCoroutine(activate_special());
+            }
         }
     }
 
-    public void check_input(string arrow_input)
+    public string check_input(string arrow_input)
     {
+        bool correct = false;
         CLEARING = false;
         complete_string = false;
         Debug.Log(up_active + "upactive");
         Debug.Log(down_active + "downactive");
         if ((object_array[0].name == "RightArrow") && (up_active == 0))
         {
-            if (arrow_input.ToString() == "UpArrow")
+            if ((arrow_input.ToString() == "UpArrow") && (up_passed == false))
             {
                 up_passed = false;
                 down_passed = true;
@@ -125,6 +158,12 @@ public class Strings : MonoBehaviour {
                 {
                     red_key_exists = 0;
                 }
+                if (gameobject.GetComponent<SpriteRenderer>().color == new Color(0, 255, 0))
+                {
+                    green_key_exists = 0;
+                    Debug.Log("green");
+                    heal_player(5);
+                }
                 object_array_up.RemoveAt(0);
                 string_array_up.RemoveAt(0);
                 Destroy(gameobject);
@@ -143,13 +182,15 @@ public class Strings : MonoBehaviour {
                 {
                     make_first_key_yellow(object_array_up, object_array, object_array_down);
                 }
+                correct = true;
 
             }
         }
         if ((object_array[0].name == "LeftArrow") && (down_active == 0))
         {
-            if (arrow_input.ToString() == "DownArrow")
+            if ((arrow_input.ToString() == "DownArrow") && (down_passed == false))
             {
+                Debug.Log("downpassedtrue");
                 up_passed = true;
                 down_passed = false;
                 down_active = 1;
@@ -157,7 +198,6 @@ public class Strings : MonoBehaviour {
                 down_passed = true;
             }
         }
-        Debug.Log(object_array_down.Count);
         if (object_array_down.Count > 0)
         {
             if ((arrow_input.ToString() != object_array_down[0].name) && (down_active == 1) && (CLEARING == false))
@@ -179,6 +219,11 @@ public class Strings : MonoBehaviour {
                 {
                     red_key_exists = 0;
                 }
+                if (gameobject.GetComponent<SpriteRenderer>().color == new Color(0, 255, 0))
+                {
+                    green_key_exists = 0;
+                    heal_player(5);
+                }
                 object_array_down.RemoveAt(0);
                 string_array_down.RemoveAt(0);
                 Destroy(gameobject);
@@ -188,16 +233,18 @@ public class Strings : MonoBehaviour {
                     apply_enemy_damage(true);
                     clear_string();
                     create_string();
+
                 }
                 else
                 {
                     apply_enemy_damage(false);
+  
                 }
                 if (CLEARING == false)
                 {
                     make_first_key_yellow(object_array_down, object_array, object_array_up);
                 }
-
+                correct = true;
             }
         }
         if ((down_active == 0) && (up_active == 0))
@@ -221,6 +268,11 @@ public class Strings : MonoBehaviour {
                 {
                     red_key_exists = 0;
                 }
+                if (gameobject.GetComponent<SpriteRenderer>().color == new Color(0, 255, 0))
+                {
+                    green_key_exists = 0;
+                    heal_player(5);
+                }
                 object_array.RemoveAt(0);
                 string_array.RemoveAt(0);
                 Destroy(gameobject);
@@ -235,22 +287,30 @@ public class Strings : MonoBehaviour {
                 {
                     apply_enemy_damage(false);
                 }
+                correct = true;
             }
             make_first_key_yellow(object_array, object_array_up, object_array_down);
         if((object_array_down.Count > 0) && (down_active == 0) && (down_passed == false) ){
             if((object_array[0].name == "LeftArrow") && (object_array_down[0].name == "DownArrow") && (down_active == 0)){
                 make_first_key_yellow(object_array_down);
+                }
             }
-        }
         if((object_array_up.Count > 0) && (up_active == 0) && (up_passed == false)){
             if((object_array[0].name == "RightArrow") && (object_array_up[0].name == "UpArrow") && (up_active == 0)){
                 make_first_key_yellow(object_array_up);
+                }
             }
-        }
-    }
+        }   
     
-    CLEARING = false;
-
+        CLEARING = false;
+        if(correct == true)
+        {
+            return arrow_input;
+        }
+        else
+        {
+            return "nothing";
+        }
     }
 
     public void move_arrows()
@@ -380,6 +440,7 @@ public class Strings : MonoBehaviour {
         int STR = player_STR;
         int total_damage = Mathf.RoundToInt((STR * 0.5f) + total_default_damage);
         int total_complete_damage = total_damage + Mathf.RoundToInt(Player.default_complete_damage);
+        total_damage = Mathf.RoundToInt(total_damage * (float)(1.00 + (float)combo_value_object.GetComponent<combo_value>().combo1 / 100));
         if (Random.Range(0.00f, 101) <= (player_CRIT + (player_LUK * 0.05)))
         {
             total_complete_damage *= 2;
@@ -395,7 +456,11 @@ public class Strings : MonoBehaviour {
             } else {
                 audioSource.PlayOneShot(damage_complete);
             }
-            Enemy.GetComponent<Enemy>().Damage(total_complete_damage, crit);
+            string isdead = Enemy.GetComponent<Enemy>().Damage(total_complete_damage, crit);
+            if(isdead == "dead")
+            {
+                red_key_exists = 0;
+            }
         }
         else
         {
@@ -404,14 +469,53 @@ public class Strings : MonoBehaviour {
             } else {
                 audioSource.PlayOneShot(damage_enemy);
             }
-            Enemy.GetComponent<Enemy>().Damage(total_damage, crit);
+            string isdead = Enemy.GetComponent<Enemy>().Damage(total_damage, crit);
+            if(isdead == "dead")
+            {
+                red_key_exists = 0;
+            }
         }
+        combo_value_object.GetComponent<combo_value>().increase_combo();
+        combo_multi_object.GetComponent<Animator>().SetTrigger("combomulti");
+        Special.GetComponent<Special>().increase_special();
     }
 
     public void apply_player_damage()
     {
         float player_damage = input_self_damage;
-         Player_object.GetComponent<Player>().Damage(player_damage);
+        Player_object.GetComponent<Player>().Damage(player_damage);
+        Special.GetComponent<Special>().reset_special();
+        combo_value_object.GetComponent<combo_value>().reset_combo();
+    }
+
+    public void heal_player(int heal_amount)
+    {
+        audioSource.PlayOneShot(heal_sound);
+        Player_object.GetComponent<Player>().heal(heal_amount);
+    }
+
+    public IEnumerator activate_special()
+    {
+        audioSource.PlayOneShot(special_sound);
+        yield return new WaitForSeconds(0.7f);
+        for(int i = 0; i < 40; i++)
+        {
+            red_key_exists = 0;
+            if(down_active == 1)
+            {
+                check_input(object_array_down[0].name);
+            } else {
+                if(up_active == 1)
+                {
+                    check_input(object_array_up[0].name);
+                } else {
+                    check_input(object_array[0].name);
+                }
+            }
+            // apply_enemy_damage(true);
+            yield return new WaitForSeconds(0.05f);
+        }
+        Special.GetComponent<Special>().reset_special();
     }
 
     public void create_key(Sprite sprite, float x)
@@ -432,8 +536,8 @@ public class Strings : MonoBehaviour {
     {
         if (array.Count > 0)
         {
-            if(array[0].GetComponent<SpriteRenderer>().color == new Color(255, 0, 0)){
-                Debug.Log("that is red");
+            if(array[0].GetComponent<SpriteRenderer>().color == new Color(255, 0, 0) || array[0].GetComponent<SpriteRenderer>().color == new Color(0, 255, 0)){
+                Debug.Log("that is coloured");
             } else {
                 array[0].GetComponent<SpriteRenderer>().color = new Color(255, 255, 0);
             }
@@ -497,18 +601,71 @@ public class Strings : MonoBehaviour {
                 }
             }
         }
-        int which_string = Random.Range(0, 3);
-        if(which_string == 0){
+        create_red_key();
+        create_green_key();
+
+    }
+
+    public void create_string_magic(string magic)
+    {
+        clear_string();
+        float x = -7;
+        for (int i = 0; i < 6; i++)
+        {
+            string_array.Add(input_sprites[Random.Range(0,4)]);
+        }
+        foreach(Sprite sprite in string_array)
+        {
+            x += 1.2f;
+            create_key(sprite, x);
+        }
+        // make it so that we know its a magic string lol idk
+        make_first_key_yellow(object_array);
+    }
+
+    public void create_red_key()
+    {
+        int which_string_red = Random.Range(0, 3);
+        if(which_string_red == 0){
             object_array[Random.Range(1, (object_array.Count - 1))].GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
             red_key_exists = 1;
         }
-        if((which_string == 1) && (object_array_up.Count > 0) ){
+        if((which_string_red == 1) && (object_array_up.Count > 0) ){
             object_array_up[Random.Range(1, (object_array_up.Count - 1))].GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
             red_key_exists = 1;
         }
-        if((which_string == 2) && (object_array_down.Count > 0)){
+        if((which_string_red == 2) && (object_array_down.Count > 0)){
             object_array_down[Random.Range(1, (object_array_down.Count - 1))].GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
             red_key_exists = 1;
+        }
+    }
+
+    public void create_green_key()
+    {
+        int which_string_green = Random.Range(0, 5);
+        if(which_string_green == 0){
+            int which_key = Random.Range(1, object_array.Count - 1);
+            if(object_array[which_key].GetComponent<SpriteRenderer>().color != new Color (255, 0, 0))
+            {
+                object_array[which_key].GetComponent<SpriteRenderer>().color = new Color(0, 255, 0);
+                green_key_exists = 1;
+            }
+        }
+        if((which_string_green == 1) && (object_array_up.Count > 0) ){
+            int which_key = Random.Range(1, object_array.Count - 1);
+            if(object_array_up[which_key].GetComponent<SpriteRenderer>().color != new Color (255, 0, 0))
+            {
+                object_array_up[which_key].GetComponent<SpriteRenderer>().color = new Color(0, 255, 0);
+                green_key_exists = 1;
+            }
+        }
+        if((which_string_green == 2) && (object_array_down.Count > 0)){
+            int which_key = Random.Range(1, object_array.Count - 1);
+            if(object_array_down[which_key].GetComponent<SpriteRenderer>().color != new Color (255, 0, 0))
+            {
+                object_array_down[which_key].GetComponent<SpriteRenderer>().color = new Color(0, 255, 0);
+                green_key_exists = 1;
+            }
         }
     }
 
@@ -576,6 +733,7 @@ public class Strings : MonoBehaviour {
         up_active = 0;
         down_active = 0;
         red_key_exists = 0;
+        green_key_exists = 0;
         up_passed = false;
         down_passed = false;
     }

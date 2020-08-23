@@ -9,13 +9,15 @@ public class Enemy : MonoBehaviour {
 	public AudioSource audioSource;
 	public Text gold;
 	public GameObject floating_text;
+	public GameObject killed;
     public static float health;
 	public float health2 = health;
 	public float attack;
+	
 
 	// Use this for initialization
 	void Start () {
-		health = 100;
+		health = 100 + (100 * enemies_killed.killed_value * 0.5f);
 		attack = 5;
 	}
 	
@@ -30,11 +32,17 @@ public class Enemy : MonoBehaviour {
 		// }
 	}
 
-	public void Damage(int input_damage, bool crit)
+	public string Damage(int input_damage, bool crit)
 	{
 		gold.GetComponent<Score>().increase_gold();
 		health -= input_damage;
 		show_floating_text(input_damage, crit);
+		if(health <= 0)
+		{
+			return "dead";
+		}
+
+		return "not dead";
 		
 	}
 

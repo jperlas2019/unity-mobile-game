@@ -10,12 +10,9 @@ public class Main : MonoBehaviour {
 	public Text gold;
 	public List<GameObject> enemy_array = new List<GameObject>();
 	public GameObject strings;
+	public Text killed_ui;
 	
 
-	// Use this for initialization
-	void Start () {
-			
-	}
 	
 	// Update is called once per frame
 	void Update () {
@@ -36,6 +33,7 @@ public class Main : MonoBehaviour {
 			enemy_array[0].GetComponent<Enemy>().destroy_self();
 			enemy_array.Clear();
 			gold.GetComponent<Score>().increase_gold();
+			killed_ui.GetComponent<enemies_killed>().increase_killed();
 			Player.GetComponent<Player>().EXP += 1;
 			Player.GetComponent<Player>().update_stats();
 		}

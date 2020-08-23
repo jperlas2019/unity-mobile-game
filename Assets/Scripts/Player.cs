@@ -12,11 +12,13 @@ public class Player : MonoBehaviour {
 	public GameObject floating_text;
     public static float health = 10.0f;
 	public float health2 = health;
+	public static float max_health = health;
 	public static float default_attack = 5.0f;
 	public static float default_attack_min = 1.0f;
 	public static float default_attack_max = 5.0f;
 	public static float default_complete_damage = 5.0f;
 	public static int max_exp;
+	public int magic_mod;
 	public int STR;
 	public int DEX;
 	public int VIT;
@@ -36,6 +38,7 @@ public class Player : MonoBehaviour {
 	public Text EXP_text;
 	public Text LVL_text;
 	public Text ATTR_text;
+	public Animator player_animator;
 	
 
 	// Use this for initialization
@@ -52,6 +55,9 @@ public class Player : MonoBehaviour {
 		ATTR = 0;
 		CRIT_CHANCE = 5;
 		update_stats();
+
+		health += 10 * VIT;
+		max_health = health;
 	}
 	
 	// Update is called once per frame
@@ -61,13 +67,31 @@ public class Player : MonoBehaviour {
 
 	public void Damage(float input_damage)
 	{
-		health -= input_damage;
+		if(health - input_damage <= 0)
+		{
+			health = 0;
+		} else {
+			health -= input_damage;
+		}
 		audioSource.PlayOneShot(player_hurt);
 		show_floating_text(input_damage);
 	}
 
+	public void heal(float heal_amount)
+	{
+		heal_amount += heal_amount * (MAG / 2);
+		if(health + heal_amount >= max_health)
+		{
+			health = max_health;
+		} else {
+			health += heal_amount;
+		}
+		show_floating_text(heal_amount, "heal");
 
-	    void show_floating_text(float input_damage)
+	}
+
+
+	    void show_floating_text(float input_damage, string action = null)
     {
 		float player_position_x = transform.position.x;
 		float player_position_y = transform.position.y;
@@ -77,6 +101,10 @@ public class Player : MonoBehaviour {
 		float player_max_y = 1.0f + player_position_y;
         GameObject go = Instantiate(floating_text, new Vector3(Random.Range(player_min_x, player_max_x), Random.Range(player_min_y, player_max_y), transform.position.z - 1), Quaternion.identity);
 		go.GetComponent<TextMesh>().text = input_damage.ToString();
+		if(action == "heal")
+		{
+			go.GetComponent<TextMesh>().color = new Color(0, 255, 0);
+		}
     }
 
 	public void level_up()
@@ -94,6 +122,7 @@ public class Player : MonoBehaviour {
 		ATTR += 5;
 		MainHUD.GetComponent<MainHUD>().interact();
 		
+		max_health += 10 * VIT;
 	}
 
 	public void update_stats()
